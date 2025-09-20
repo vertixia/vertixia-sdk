@@ -1,0 +1,101 @@
+# Text Analyzer Component Configuration
+# AI-OS SDK Example Component
+
+type: tool
+version: "1.0.0"
+
+metadata:
+  name: text-analyzer
+  display_name: "Text Analyzer"
+  description: "Analyzes text for sentiment, readability, and key metrics"
+  author: "AI-OS SDK Example"
+  version: "1.0.0"
+  license: "MIT"
+  category: "text-processing"
+  tags: ["tool", "text", "nlp", "sentiment", "analysis"]
+  documentation_url: "https://docs.ai-os.com/sdk/examples/text-analyzer"
+  source_url: "https://github.com/ai-os/sdk-examples/text-analyzer"
+  icon: "📝"
+
+execution_mode: sync
+langflow_compatible: true
+ai_os_version: ">=0.1.0"
+
+parameters:
+  - name: text
+    type: string
+    description: "Text content to analyze"
+    required: true
+    min_length: 1
+    max_length: 10000
+  
+  - name: analysis_type
+    type: string
+    description: "Type of analysis to perform"
+    required: false
+    default: "comprehensive"
+    choices: ["basic", "sentiment", "readability", "comprehensive"]
+  
+  - name: include_metrics
+    type: boolean
+    description: "Include detailed metrics in output"
+    required: false
+    default: true
+  
+  - name: language
+    type: string
+    description: "Text language for analysis"
+    required: false
+    default: "auto"
+    choices: ["auto", "en", "es", "fr", "de", "it"]
+
+dependencies:
+  - name: nltk
+    version: ">=3.8"
+    optional: false
+  - name: textstat
+    version: ">=0.7"
+    optional: true
+
+# Input/Output schemas
+input_schema:
+  type: object
+  properties:
+    text:
+      type: string
+      description: "Text to analyze"
+    analysis_type:
+      type: string
+      enum: ["basic", "sentiment", "readability", "comprehensive"]
+    include_metrics:
+      type: boolean
+    language:
+      type: string
+  required: ["text"]
+
+output_schema:
+  type: object
+  properties:
+    sentiment:
+      type: string
+      description: "Detected sentiment"
+    confidence:
+      type: number
+      description: "Confidence score (0-1)"
+    word_count:
+      type: integer
+      description: "Number of words"
+    sentence_count:
+      type: integer
+      description: "Number of sentences"
+    readability_score:
+      type: number
+      description: "Flesch reading ease score"
+    key_phrases:
+      type: array
+      items:
+        type: string
+      description: "Extracted key phrases"
+    processing_time:
+      type: number
+      description: "Processing time in seconds"

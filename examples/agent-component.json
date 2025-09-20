@@ -1,0 +1,374 @@
+{
+  "type": "agent",
+  "version": "1.0.0",
+  "metadata": {
+    "name": "customer-service-agent",
+    "display_name": "Customer Service Agent",
+    "description": "Autonomous customer service agent for handling inquiries, complaints, and support requests",
+    "author": "AI-OS SDK Team",
+    "version": "1.0.0",
+    "license": "MIT",
+    "category": "customer-service",
+    "tags": ["agent", "customer-service", "support", "autonomous", "nlp"],
+    "documentation_url": "https://docs.ai-os.com/sdk/examples/customer-service-agent",
+    "source_url": "https://github.com/ai-os/sdk-examples/customer-service-agent",
+    "icon": "🎧"
+  },
+  "execution_mode": "async",
+  "langflow_compatible": true,
+  "ai_os_version": ">=0.1.0",
+  "goal": "Provide excellent customer service by understanding inquiries, resolving issues, and ensuring customer satisfaction",
+  "role": "Customer Service Representative",
+  "backstory": "I am an AI-powered customer service agent with extensive knowledge of products, policies, and procedures. I specialize in understanding customer needs, resolving issues efficiently, and escalating complex problems to human agents when necessary.",
+  "delegation": true,
+  "verbose": false,
+  "memory_enabled": true,
+  "max_memory_size": 1000,
+  "auto_save_state": true,
+  "tools": [
+    "knowledge_base_search",
+    "ticket_system",
+    "order_lookup",
+    "refund_processor",
+    "escalation_manager"
+  ],
+  "parameters": [
+    {
+      "name": "customer_inquiry",
+      "type": "string",
+      "description": "Customer inquiry, complaint, or support request",
+      "required": true,
+      "min_length": 10,
+      "max_length": 2000
+    },
+    {
+      "name": "customer_info",
+      "type": "object",
+      "description": "Customer information and context",
+      "required": false,
+      "default": {},
+      "properties": {
+        "customer_id": {
+          "type": "string",
+          "description": "Unique customer identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Customer name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Customer email address"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Customer phone number"
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["basic", "premium", "enterprise"],
+          "description": "Customer tier/plan"
+        },
+        "previous_tickets": {
+          "type": "array",
+          "description": "Previous support tickets",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "inquiry_type",
+      "type": "string",
+      "description": "Type of customer inquiry",
+      "required": false,
+      "default": "general",
+      "choices": [
+        "general",
+        "technical_support",
+        "billing",
+        "refund_request",
+        "product_inquiry",
+        "complaint",
+        "feature_request",
+        "account_issue"
+      ]
+    },
+    {
+      "name": "priority_level",
+      "type": "string",
+      "description": "Priority level of the inquiry",
+      "required": false,
+      "default": "medium",
+      "choices": ["low", "medium", "high", "urgent"]
+    },
+    {
+      "name": "max_response_time",
+      "type": "integer",
+      "description": "Maximum response time in minutes",
+      "required": false,
+      "default": 30,
+      "minimum": 5,
+      "maximum": 1440,
+      "environment_variable": "AGENT_MAX_RESPONSE_TIME"
+    },
+    {
+      "name": "escalation_threshold",
+      "type": "integer",
+      "description": "Number of failed resolution attempts before escalation",
+      "required": false,
+      "default": 3,
+      "minimum": 1,
+      "maximum": 10
+    },
+    {
+      "name": "language",
+      "type": "string",
+      "description": "Customer's preferred language",
+      "required": false,
+      "default": "en",
+      "choices": ["en", "es", "fr", "de", "it", "pt", "ja", "zh"]
+    },
+    {
+      "name": "enable_proactive_suggestions",
+      "type": "boolean",
+      "description": "Enable proactive suggestions for related issues",
+      "required": false,
+      "default": true
+    },
+    {
+      "name": "collect_feedback",
+      "type": "boolean",
+      "description": "Collect customer feedback after resolution",
+      "required": false,
+      "default": true
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "openai",
+      "version": ">=1.0.0",
+      "optional": false
+    },
+    {
+      "name": "nltk",
+      "version": ">=3.8",
+      "optional": false
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0",
+      "optional": false
+    },
+    {
+      "name": "langchain",
+      "version": ">=0.1.0",
+      "optional": true,
+      "description": "For advanced conversation handling"
+    }
+  ],
+  "knowledge_base": {
+    "enabled": true,
+    "sources": [
+      "product_documentation",
+      "faq_database", 
+      "policy_documents",
+      "troubleshooting_guides",
+      "previous_resolutions"
+    ],
+    "update_frequency": "daily",
+    "similarity_threshold": 0.8
+  },
+  "conversation_flow": {
+    "greeting": {
+      "enabled": true,
+      "personalized": true,
+      "templates": {
+        "en": "Hello {customer_name}! I'm here to help you with your inquiry. How can I assist you today?",
+        "es": "¡Hola {customer_name}! Estoy aquí para ayudarte con tu consulta. ¿Cómo puedo asistirte hoy?",
+        "fr": "Bonjour {customer_name}! Je suis là pour vous aider avec votre demande. Comment puis-je vous aider aujourd'hui?"
+      }
+    },
+    "inquiry_understanding": {
+      "enabled": true,
+      "clarification_questions": true,
+      "context_gathering": true,
+      "sentiment_analysis": true
+    },
+    "resolution_process": {
+      "step_by_step_guidance": true,
+      "progress_updates": true,
+      "alternative_solutions": true,
+      "escalation_triggers": [
+        "complex_technical_issue",
+        "policy_exception_request",
+        "high_value_customer",
+        "repeated_failures"
+      ]
+    },
+    "closure": {
+      "solution_summary": true,
+      "satisfaction_check": true,
+      "follow_up_scheduling": true,
+      "feedback_collection": true
+    }
+  },
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "customer_inquiry": {
+        "type": "string",
+        "description": "Customer inquiry or support request"
+      },
+      "customer_info": {
+        "type": "object",
+        "description": "Customer information and context"
+      },
+      "inquiry_type": {
+        "type": "string",
+        "enum": [
+          "general",
+          "technical_support",
+          "billing",
+          "refund_request",
+          "product_inquiry",
+          "complaint",
+          "feature_request",
+          "account_issue"
+        ]
+      },
+      "priority_level": {
+        "type": "string",
+        "enum": ["low", "medium", "high", "urgent"]
+      },
+      "language": {
+        "type": "string",
+        "description": "Customer's preferred language"
+      }
+    },
+    "required": ["customer_inquiry"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "resolution_status": {
+        "type": "string",
+        "enum": ["resolved", "escalated", "pending", "follow_up_required"],
+        "description": "Status of the inquiry resolution"
+      },
+      "response": {
+        "type": "string",
+        "description": "Agent's response to the customer"
+      },
+      "solution_steps": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Steps taken to resolve the issue"
+      },
+      "escalation_reason": {
+        "type": "string",
+        "description": "Reason for escalation (if applicable)"
+      },
+      "ticket_id": {
+        "type": "string",
+        "description": "Generated support ticket ID"
+      },
+      "estimated_resolution_time": {
+        "type": "integer",
+        "description": "Estimated resolution time in minutes"
+      },
+      "customer_satisfaction_score": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Customer satisfaction rating (1-5)"
+      },
+      "follow_up_required": {
+        "type": "boolean",
+        "description": "Whether follow-up is required"
+      },
+      "follow_up_date": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Scheduled follow-up date"
+      },
+      "knowledge_base_articles": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "relevance_score": {
+              "type": "number"
+            }
+          }
+        },
+        "description": "Relevant knowledge base articles"
+      },
+      "conversation_history": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "speaker": {
+              "type": "string",
+              "enum": ["customer", "agent"]
+            },
+            "message": {
+              "type": "string"
+            },
+            "sentiment": {
+              "type": "string",
+              "enum": ["positive", "neutral", "negative"]
+            }
+          }
+        },
+        "description": "Full conversation history"
+      },
+      "processing_time": {
+        "type": "number",
+        "description": "Total processing time in seconds"
+      },
+      "confidence_score": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "description": "Agent's confidence in the resolution"
+      }
+    }
+  },
+  "performance_metrics": {
+    "track_response_time": true,
+    "track_resolution_rate": true,
+    "track_customer_satisfaction": true,
+    "track_escalation_rate": true,
+    "track_first_contact_resolution": true
+  },
+  "learning": {
+    "enabled": true,
+    "feedback_incorporation": true,
+    "pattern_recognition": true,
+    "continuous_improvement": true,
+    "update_frequency": "weekly"
+  },
+  "compliance": {
+    "data_privacy": true,
+    "gdpr_compliant": true,
+    "conversation_logging": true,
+    "sensitive_data_masking": true,
+    "audit_trail": true
+  }
+}

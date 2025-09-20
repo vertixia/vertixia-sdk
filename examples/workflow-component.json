@@ -1,0 +1,401 @@
+{
+  "type": "workflow",
+  "version": "1.0.0",
+  "metadata": {
+    "name": "data-processing-pipeline",
+    "display_name": "Data Processing Pipeline",
+    "description": "Multi-stage data processing workflow with validation, transformation, and export",
+    "author": "AI-OS SDK Team",
+    "version": "1.0.0",
+    "license": "MIT",
+    "category": "data-processing",
+    "tags": ["workflow", "data", "pipeline", "etl", "processing"],
+    "documentation_url": "https://docs.ai-os.com/sdk/examples/data-pipeline",
+    "source_url": "https://github.com/ai-os/sdk-examples/data-pipeline",
+    "icon": "🔄"
+  },
+  "execution_mode": "async",
+  "langflow_compatible": true,
+  "ai_os_version": ">=0.1.0",
+  "parallel_execution": false,
+  "max_workers": 4,
+  "continue_on_error": false,
+  "save_state": true,
+  "retry_failed_steps": true,
+  "max_retries": 3,
+  "parameters": [
+    {
+      "name": "input_data",
+      "type": "object",
+      "description": "Input data for the pipeline",
+      "required": true,
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Data source identifier"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "csv", "xml", "parquet"],
+          "description": "Input data format"
+        },
+        "data": {
+          "type": "array",
+          "description": "Actual data records"
+        }
+      }
+    },
+    {
+      "name": "pipeline_config",
+      "type": "object",
+      "description": "Pipeline configuration settings",
+      "required": false,
+      "default": {},
+      "properties": {
+        "validation_rules": {
+          "type": "object",
+          "description": "Data validation rules"
+        },
+        "transformation_steps": {
+          "type": "array",
+          "description": "List of transformation steps"
+        },
+        "quality_checks": {
+          "type": "boolean",
+          "description": "Enable data quality checks"
+        }
+      }
+    },
+    {
+      "name": "output_format",
+      "type": "string",
+      "description": "Output format for processed data",
+      "required": false,
+      "default": "json",
+      "choices": ["json", "csv", "parquet", "xml", "database"]
+    },
+    {
+      "name": "output_destination",
+      "type": "string",
+      "description": "Output destination (file path, database connection, etc.)",
+      "required": false,
+      "default": "./output",
+      "environment_variable": "PIPELINE_OUTPUT_PATH"
+    },
+    {
+      "name": "batch_size",
+      "type": "integer",
+      "description": "Number of records to process in each batch",
+      "required": false,
+      "default": 1000,
+      "minimum": 1,
+      "maximum": 10000
+    },
+    {
+      "name": "enable_monitoring",
+      "type": "boolean",
+      "description": "Enable pipeline monitoring and metrics",
+      "required": false,
+      "default": true
+    },
+    {
+      "name": "timeout_seconds",
+      "type": "integer",
+      "description": "Pipeline timeout in seconds",
+      "required": false,
+      "default": 3600,
+      "minimum": 60,
+      "maximum": 86400
+    },
+    {
+      "name": "parallel_workers",
+      "type": "integer",
+      "description": "Number of parallel workers for processing",
+      "required": false,
+      "default": 4,
+      "minimum": 1,
+      "maximum": 16,
+      "environment_variable": "PIPELINE_WORKERS"
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "pandas",
+      "version": ">=1.5.0",
+      "optional": false
+    },
+    {
+      "name": "pyarrow",
+      "version": ">=10.0.0",
+      "optional": true,
+      "description": "For Parquet format support"
+    },
+    {
+      "name": "sqlalchemy",
+      "version": ">=2.0.0",
+      "optional": true,
+      "description": "For database operations"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0",
+      "optional": false
+    }
+  ],
+  "steps": [
+    {
+      "name": "validate_input",
+      "description": "Validate input data format and structure",
+      "action": "validate_data",
+      "retry_count": 1,
+      "timeout": 300,
+      "parameters": {
+        "strict_validation": true,
+        "schema_validation": true
+      }
+    },
+    {
+      "name": "data_quality_check",
+      "description": "Perform data quality checks",
+      "action": "quality_check",
+      "retry_count": 2,
+      "timeout": 600,
+      "depends_on": ["validate_input"],
+      "parameters": {
+        "check_duplicates": true,
+        "check_nulls": true,
+        "check_outliers": true
+      }
+    },
+    {
+      "name": "clean_data",
+      "description": "Clean and normalize data",
+      "action": "clean_transform_data",
+      "retry_count": 2,
+      "timeout": 900,
+      "depends_on": ["data_quality_check"],
+      "parameters": {
+        "remove_duplicates": true,
+        "fill_missing_values": true,
+        "normalize_formats": true
+      }
+    },
+    {
+      "name": "transform_data",
+      "description": "Apply business logic transformations",
+      "action": "transform_data",
+      "retry_count": 2,
+      "timeout": 1200,
+      "depends_on": ["clean_data"],
+      "parameters": {
+        "apply_business_rules": true,
+        "calculate_derived_fields": true,
+        "aggregate_data": false
+      }
+    },
+    {
+      "name": "validate_output",
+      "description": "Validate transformed data",
+      "action": "validate_output",
+      "retry_count": 1,
+      "timeout": 300,
+      "depends_on": ["transform_data"],
+      "parameters": {
+        "output_schema_validation": true,
+        "data_integrity_check": true
+      }
+    },
+    {
+      "name": "export_data",
+      "description": "Export data to destination",
+      "action": "export_data",
+      "retry_count": 3,
+      "timeout": 1800,
+      "depends_on": ["validate_output"],
+      "parameters": {
+        "create_backup": true,
+        "verify_export": true
+      }
+    },
+    {
+      "name": "generate_report",
+      "description": "Generate processing report",
+      "action": "generate_report",
+      "retry_count": 1,
+      "timeout": 300,
+      "depends_on": ["export_data"],
+      "parameters": {
+        "include_statistics": true,
+        "include_quality_metrics": true,
+        "send_notification": true
+      }
+    }
+  ],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "input_data": {
+        "type": "object",
+        "description": "Input data for processing"
+      },
+      "pipeline_config": {
+        "type": "object",
+        "description": "Pipeline configuration"
+      },
+      "output_format": {
+        "type": "string",
+        "enum": ["json", "csv", "parquet", "xml", "database"]
+      },
+      "output_destination": {
+        "type": "string",
+        "description": "Output destination"
+      },
+      "batch_size": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "required": ["input_data"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "success": {
+        "type": "boolean",
+        "description": "Whether pipeline completed successfully"
+      },
+      "processed_records": {
+        "type": "integer",
+        "description": "Number of records processed"
+      },
+      "output_location": {
+        "type": "string",
+        "description": "Location of processed data"
+      },
+      "processing_time": {
+        "type": "number",
+        "description": "Total processing time in seconds"
+      },
+      "steps_completed": {
+        "type": "integer",
+        "description": "Number of steps completed"
+      },
+      "quality_metrics": {
+        "type": "object",
+        "properties": {
+          "data_quality_score": {
+            "type": "number",
+            "description": "Data quality score (0-1)"
+          },
+          "records_cleaned": {
+            "type": "integer",
+            "description": "Number of records cleaned"
+          },
+          "duplicates_removed": {
+            "type": "integer",
+            "description": "Number of duplicates removed"
+          },
+          "null_values_handled": {
+            "type": "integer",
+            "description": "Number of null values handled"
+          }
+        },
+        "description": "Data quality metrics"
+      },
+      "step_results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "step_name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["completed", "failed", "skipped"]
+            },
+            "execution_time": {
+              "type": "number"
+            },
+            "records_processed": {
+              "type": "integer"
+            },
+            "error_message": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Individual step results"
+      },
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "step": {
+              "type": "string"
+            },
+            "error_type": {
+              "type": "string"
+            },
+            "error_message": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "List of errors encountered"
+      },
+      "pipeline_id": {
+        "type": "string",
+        "description": "Unique pipeline execution ID"
+      },
+      "started_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Pipeline start timestamp"
+      },
+      "completed_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Pipeline completion timestamp"
+      }
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics": [
+      "processing_time",
+      "records_per_second",
+      "memory_usage",
+      "cpu_usage",
+      "error_rate",
+      "step_completion_rate"
+    ],
+    "alerts": [
+      {
+        "condition": "processing_time > 3600",
+        "action": "send_notification",
+        "message": "Pipeline taking longer than expected"
+      },
+      {
+        "condition": "error_rate > 0.05",
+        "action": "escalate",
+        "message": "High error rate detected"
+      }
+    ]
+  },
+  "retry_policy": {
+    "enabled": true,
+    "max_retries": 3,
+    "retry_delay": 30,
+    "exponential_backoff": true,
+    "retry_on_errors": [
+      "ConnectionError",
+      "TimeoutError",
+      "TemporaryFailure"
+    ]
+  }
+}

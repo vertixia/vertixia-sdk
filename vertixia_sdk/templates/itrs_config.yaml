@@ -1,0 +1,176 @@
+# ITRS Reasoning Component Configuration Template
+# Iterative Transparent Reasoning System for AI-OS
+
+type: reasoning
+version: "1.0.0"
+
+metadata:
+  name: "itrs-reasoning"
+  display_name: "ITRS Reasoning Engine"
+  description: "Zero-heuristic iterative reasoning system with transparent thought tracking"
+  author: "AI-OS Development Team"
+  version: "1.0.0"
+  license: "MIT"
+  category: "reasoning"
+  tags: ["reasoning", "itrs", "transparent", "iterative", "zero-heuristic"]
+  documentation_url: "https://docs.ai-os.com/components/itrs-reasoning"
+  source_url: "https://github.com/ai-os/sdk/templates/itrs"
+  icon: "🧠"
+
+# ITRS-specific configuration
+max_iterations: 10
+quality_threshold: 0.85
+time_limit: 300  # seconds
+convergence_threshold: 0.05
+min_confidence: 0.7
+
+# Execution configuration
+execution_mode: async
+langflow_compatible: true
+ai_os_version: ">=0.1.0"
+
+# Parameters
+parameters:
+  - name: "query"
+    type: string
+    description: "The question or problem to reason about"
+    required: true
+  
+  - name: "initial_response"
+    type: string
+    description: "Optional initial response to refine"
+    required: false
+    default: null
+  
+  - name: "max_iterations"
+    type: integer
+    description: "Maximum number of refinement iterations"
+    required: false
+    default: 10
+    environment_variable: "ITRS_MAX_ITERATIONS"
+  
+  - name: "quality_threshold"
+    type: float
+    description: "Quality score threshold for stopping (0.0-1.0)"
+    required: false
+    default: 0.85
+    environment_variable: "ITRS_QUALITY_THRESHOLD"
+  
+  - name: "time_limit"
+    type: integer
+    description: "Maximum time limit in seconds"
+    required: false
+    default: 300
+    environment_variable: "ITRS_TIME_LIMIT"
+  
+  - name: "preferred_strategies"
+    type: array
+    description: "Preferred refinement strategies to use"
+    required: false
+    default: ["depth_first", "perspective_switching", "evidence_integration"]
+  
+  - name: "enable_user_feedback"
+    type: boolean
+    description: "Allow user feedback during reasoning iterations"
+    required: false
+    default: true
+
+# Dependencies
+dependencies:
+  - name: "pydantic"
+    version: ">=2.0.0"
+    optional: false
+  
+  - name: "asyncio"
+    version: ">=3.4.0"
+    optional: false
+
+# Output schema
+outputs:
+  reasoning_result:
+    type: object
+    description: "Complete reasoning result with iterative refinements"
+    properties:
+      session_id:
+        type: string
+        description: "Unique session identifier"
+      final_response:
+        type: string
+        description: "Best refined response"
+      reasoning_path:
+        type: array
+        description: "Step-by-step reasoning path"
+      quality_score:
+        type: number
+        description: "Final quality score (0.0-1.0)"
+      iterations:
+        type: integer
+        description: "Number of refinement iterations performed"
+      strategies_used:
+        type: array
+        description: "List of refinement strategies applied"
+      session_summary:
+        type: object
+        description: "Detailed session information"
+
+# Usage examples
+examples:
+  - name: "Basic reasoning"
+    description: "Simple reasoning about a business problem"
+    input:
+      query: "Should our company invest in renewable energy technology?"
+    expected_output:
+      reasoning_result:
+        final_response: "Based on iterative analysis considering multiple perspectives..."
+        quality_score: 0.87
+        iterations: 6
+  
+  - name: "Complex decision making"
+    description: "Multi-faceted decision with stakeholder considerations"
+    input:
+      query: "How should we restructure our organization for remote work?"
+      max_iterations: 15
+      quality_threshold: 0.9
+    expected_output:
+      reasoning_result:
+        final_response: "Comprehensive restructuring plan addressing..."
+        quality_score: 0.92
+        iterations: 12
+
+# Integration settings
+integration:
+  langflow:
+    component_type: "reasoning"
+    category: "AI Reasoning"
+    display_group: "Advanced"
+    inputs:
+      - name: "query"
+        display_name: "Question/Problem"
+        input_type: "text"
+        multiline: true
+      - name: "max_iterations"
+        display_name: "Max Iterations"
+        input_type: "int"
+        range: [1, 50]
+    outputs:
+      - name: "reasoning_result"
+        display_name: "Reasoning Result"
+        output_type: "object"
+
+# Testing configuration
+testing:
+  unit_tests:
+    - test_basic_reasoning
+    - test_strategy_selection
+    - test_quality_evaluation
+    - test_session_management
+  
+  integration_tests:
+    - test_complete_reasoning_session
+    - test_concurrent_sessions
+    - test_configuration_validation
+  
+  performance_tests:
+    - test_iteration_performance
+    - test_memory_usage
+    - test_concurrent_load

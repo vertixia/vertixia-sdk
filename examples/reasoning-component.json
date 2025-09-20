@@ -1,0 +1,230 @@
+{
+  "type": "reasoning",
+  "version": "1.0.0",
+  "metadata": {
+    "name": "itrs-reasoning",
+    "display_name": "ITRS Reasoning Engine",
+    "description": "Iterative Transparent Reasoning System for complex problem solving",
+    "author": "AI-OS SDK Team",
+    "version": "1.0.0",
+    "license": "MIT",
+    "category": "reasoning",
+    "tags": ["reasoning", "itrs", "problem-solving", "iterative", "transparent"],
+    "documentation_url": "https://docs.ai-os.com/sdk/examples/itrs-reasoning",
+    "source_url": "https://github.com/ai-os/sdk-examples/itrs-reasoning",
+    "icon": "🧠"
+  },
+  "execution_mode": "async",
+  "langflow_compatible": true,
+  "ai_os_version": ">=0.1.0",
+  "max_iterations": 15,
+  "quality_threshold": 0.9,
+  "time_limit": 300,
+  "convergence_threshold": 0.05,
+  "min_confidence": 0.8,
+  "parameters": [
+    {
+      "name": "query",
+      "type": "string",
+      "description": "Question or problem to reason about",
+      "required": true,
+      "min_length": 10,
+      "max_length": 2000
+    },
+    {
+      "name": "context",
+      "type": "object",
+      "description": "Additional context for reasoning",
+      "required": false,
+      "default": {},
+      "properties": {
+        "domain": {
+          "type": "string",
+          "description": "Domain of the problem (e.g., 'business', 'technical', 'scientific')"
+        },
+        "constraints": {
+          "type": "array",
+          "description": "List of constraints to consider",
+          "items": {
+            "type": "string"
+          }
+        },
+        "background_info": {
+          "type": "string",
+          "description": "Background information relevant to the query"
+        }
+      }
+    },
+    {
+      "name": "preferred_strategies",
+      "type": "array",
+      "description": "Preferred reasoning strategies to use",
+      "required": false,
+      "default": ["depth_first", "evidence_integration"],
+      "items": {
+        "type": "string",
+        "enum": [
+          "depth_first",
+          "breadth_first", 
+          "consensus_building",
+          "perspective_switching",
+          "evidence_integration",
+          "contrarian_analysis"
+        ]
+      }
+    },
+    {
+      "name": "max_iterations",
+      "type": "integer",
+      "description": "Maximum number of reasoning iterations",
+      "required": false,
+      "default": 15,
+      "minimum": 1,
+      "maximum": 50,
+      "environment_variable": "ITRS_MAX_ITERATIONS"
+    },
+    {
+      "name": "quality_threshold",
+      "type": "float",
+      "description": "Quality threshold for reasoning convergence (0-1)",
+      "required": false,
+      "default": 0.9,
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    {
+      "name": "include_reasoning_trace",
+      "type": "boolean",
+      "description": "Include detailed reasoning trace in output",
+      "required": false,
+      "default": true
+    },
+    {
+      "name": "enable_self_reflection",
+      "type": "boolean",
+      "description": "Enable self-reflection and error correction",
+      "required": false,
+      "default": true
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "openai",
+      "version": ">=1.0.0",
+      "optional": false
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0",
+      "optional": false
+    },
+    {
+      "name": "networkx",
+      "version": ">=3.0",
+      "optional": true,
+      "description": "For reasoning graph visualization"
+    }
+  ],
+  "available_strategies": [
+    "depth_first",
+    "breadth_first",
+    "consensus_building",
+    "perspective_switching",
+    "evidence_integration",
+    "contrarian_analysis"
+  ],
+  "strategy_selection_mode": "auto",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The question or problem to reason about"
+      },
+      "context": {
+        "type": "object",
+        "description": "Additional context information"
+      },
+      "preferred_strategies": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Preferred reasoning strategies"
+      },
+      "max_iterations": {
+        "type": "integer",
+        "description": "Maximum reasoning iterations"
+      },
+      "quality_threshold": {
+        "type": "number",
+        "description": "Quality threshold for convergence"
+      }
+    },
+    "required": ["query"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "final_response": {
+        "type": "string",
+        "description": "Final reasoning result"
+      },
+      "quality_score": {
+        "type": "number",
+        "description": "Quality score of the reasoning (0-1)"
+      },
+      "confidence_level": {
+        "type": "number",
+        "description": "Confidence in the result (0-1)"
+      },
+      "iterations_used": {
+        "type": "integer",
+        "description": "Number of iterations performed"
+      },
+      "strategies_used": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Reasoning strategies that were used"
+      },
+      "reasoning_trace": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "iteration": {
+              "type": "integer"
+            },
+            "strategy": {
+              "type": "string"
+            },
+            "reasoning": {
+              "type": "string"
+            },
+            "quality_score": {
+              "type": "number"
+            }
+          }
+        },
+        "description": "Detailed reasoning trace (if enabled)"
+      },
+      "key_insights": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Key insights discovered during reasoning"
+      },
+      "processing_time": {
+        "type": "number",
+        "description": "Processing time in seconds"
+      },
+      "convergence_achieved": {
+        "type": "boolean",
+        "description": "Whether reasoning converged successfully"
+      }
+    }
+  }
+}
